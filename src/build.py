@@ -1,7 +1,8 @@
 """Turn the raw snapshots into flat tables for Tableau dashboard.
 
-Writes jobs.csv (one row per advert), skills.csv (one row per advert and skill)
-and skill_summary.csv (median salary per skill, against the seniority baseline).
+Writes jobs.csv (one row per advert, with the dates it was first and last seen),
+skills.csv (one row per advert and skill) and skill_summary.csv (median salary
+per skill, against the seniority baseline).
 
 Run: python src/build.py
 """
@@ -219,8 +220,20 @@ def main():
 
     # A zero lower bound is a placeholder, not a salary.
     jobs = jobs[jobs["salary_from"] >= 0]
-    skills = skills[skills["job_key"].isin(jobs["job_key"])]
 
+    # One row per advert, holding its last observation. Repeating an advert for
+    # every day it stayed open adds nothing that data/raw does not already keep;
+    # the only facts those repeats carry are the two dates below.
+    seen = jobs.groupby("reference")["snapshot_date"].agg(["min", "max"])
+    latest = jobs["snapshot_date"].max()
+    jobs = jobs.drop_duplicates(subset="reference", keep="last")
+    jobs["first_seen"] = jobs["reference"].map(seen["min"])
+    jobs["last_seen"] = jobs["reference"].map(seen["max"])
+    # An advert absent from the newest snapshot is one that has been taken down.
+    jobs["is_open"] = jobs["last_seen"] == latest
+    jobs = jobs.drop(columns=["snapshot_date"])
+
+    skills = skills[skills["job_key"].isin(jobs["job_key"])]
     summary = skill_summary(jobs, skills)
 
     jobs.to_csv(DATA_DIR / "jobs.csv", index=False)
