@@ -8,7 +8,9 @@ Run: python src/build.py
 
 import gzip
 import json
+from collections import defaultdict
 from pathlib import Path
+from statistics import median
 
 import numpy as np
 import pandas as pd
@@ -75,6 +77,29 @@ def city_of(posting):
 
 def is_remote(posting):
     return any(place.get("city") == "Remote" for place in posting["location"]["places"])
+
+
+def city_points(postings):
+    """City -> one point, so the map does not depend on Tableau geocoding names.
+
+    The API gives office addresses, and a few sit hundreds of kilometres from
+    the city they are tagged with. A median ignores those; a mean would pull the
+    marker off the city centre by several kilometres.
+    """
+    points = defaultdict(list)
+
+    for posting in postings:
+        for place in posting["location"]["places"]:
+            point = place.get("geoLocation")
+            if not point or not place.get("city"):
+                continue
+            city = CITY_FIXES.get(place["city"], place["city"])
+            points[city].append((point["latitude"], point["longitude"]))
+
+    return {
+        city: (median(lat for lat, _ in pts), median(lon for _, lon in pts))
+        for city, pts in points.items()
+    }
 
 
 def lowest_seniority(posting):
@@ -171,10 +196,12 @@ def skill_summary(jobs, skills, min_adverts=15):
 def main():
     jobs = []
     skills = []
+    postings = []
 
     for directory in sorted(RAW_DIR.glob("date=*")):
         snapshot_date = directory.name.removeprefix("date=")
         adverts = collapse(read_snapshot(directory))
+        postings += list(adverts.values())
 
         for posting in adverts.values():
             jobs.append(job_row(posting, snapshot_date))
@@ -183,6 +210,10 @@ def main():
         print(f"{snapshot_date}: {len(adverts)} adverts")
 
     jobs = pd.DataFrame(jobs)
+
+    points = city_points(postings)
+    jobs["latitude"] = jobs["city"].map(lambda city: points.get(city, (None, None))[0])
+    jobs["longitude"] = jobs["city"].map(lambda city: points.get(city, (None, None))[1])
     # An advert can carry both names of a merged skill, e.g. Go and Golang.
     skills = pd.DataFrame(skills).drop_duplicates(subset=["job_key", "skill"])
 
