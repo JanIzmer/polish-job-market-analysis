@@ -15,8 +15,7 @@ SEARCH_URL = "https://nofluffjobs.com/api/search/posting"
 PAGE_SIZE = 200
 MAX_PAGES = 100
 
-# The endpoint needs an explicit currency and period; it also uses them as a
-# filter, so the snapshot only contains postings with a published salary.
+# NFJ posts jobs only with known salary
 PARAMS = {
     "limit": PAGE_SIZE,
     "salaryCurrency": "PLN",

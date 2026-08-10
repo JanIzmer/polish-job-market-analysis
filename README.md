@@ -34,10 +34,7 @@ advert itself: 21,909 records in the first snapshot are 3,035 adverts.
 
 Two limitations worth stating up front:
 
-- **Only adverts with a published salary are collected.** The request sends
-  `salaryCurrency=PLN&salaryPeriod=month`, and the API treats those as filters.
-  Companies that hide the range are systematically different, so the salary
-  figures describe the transparent part of the market, not all of it.
+- **Only adverts with a published salary are collected.** NFJ Posts jobs only with known salary.
 - **Skills come without a proficiency level.** The listing gives plain skill
   names; levels exist only on individual job pages.
 

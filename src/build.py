@@ -1,4 +1,4 @@
-"""Turn the raw snapshots into flat tables for Power BI.
+"""Turn the raw snapshots into flat tables for Tableau dashboard.
 
 Writes jobs.csv (one row per advert), skills.csv (one row per advert and skill)
 and skill_summary.csv (median salary per skill, against the seniority baseline).
@@ -187,7 +187,7 @@ def main():
     skills = pd.DataFrame(skills).drop_duplicates(subset=["job_key", "skill"])
 
     # A zero lower bound is a placeholder, not a salary.
-    jobs = jobs[jobs["salary_from"] > 0]
+    jobs = jobs[jobs["salary_from"] >= 0]
     skills = skills[skills["job_key"].isin(jobs["job_key"])]
 
     summary = skill_summary(jobs, skills)
