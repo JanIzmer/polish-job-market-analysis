@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+
+# Derived layers are rebuilt from data/raw, only the raw snapshots are tracked.
+data/staging/
+data/marts/
+*.duckdb
+*.parquet
+
+.DS_Store
+.ipynb_checkpoints/
