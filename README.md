@@ -129,9 +129,8 @@ under 5% of the adverts that publish a salary.
 
 ## Methodology and its limits
 
-- **Only adverts with a published salary range are collected**, because the API
-  filters on it. Companies that hide ranges are systematically different, so
-  every figure here describes the salary-transparent part of the market.
+- **Only adverts with a published salary range are collected**, this may negatively affect the group distribution,
+  particularly as the number of junior adverts.
 - **Salary is the lower bound of the advertised range**, PLN per month. B2B and
   employment contracts are kept separate rather than converted into a common
   net figure — the conversion would need assumptions about Polish tax treatment
