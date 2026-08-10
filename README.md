@@ -3,6 +3,12 @@
 Daily snapshots of job adverts from No Fluff Jobs, turned into flat tables and 
 Tableau dashboard: what a skill is actually worth once seniority is held constant.
 
+![Dashboard](dashboard/Dashboard.png)
+
+The workbook is `dashboard/No_Fluff_Jobs.twb`: skill premium with its confidence
+intervals, demand against premium, active postings by city, and the seniority
+mix. It reads the three CSVs that `src/build.py` writes.
+
 Two questions it answers today:
 
 1. **What a skill is worth** once seniority is held constant, and which of those
@@ -70,7 +76,11 @@ python src/build.py
 ```
 
 Rebuilds `jobs.csv`, `skills.csv` and `skill_summary.csv` from every snapshot on
-disk. Tableau reads those three files; see `dashboard/README.md`.
+disk. Open `dashboard/No_Fluff_Jobs.twb` on top of them. Two things the workbook
+relies on: the map plots the `latitude` and `longitude` columns instead of asking
+Tableau to geocode Polish city names, and the views filter on `is_open` so a
+count is the postings still live in the newest snapshot rather than every
+posting ever collected.
 
 ## Findings
 
@@ -141,9 +151,11 @@ under 5% of the adverts that publish a salary.
 ## Layout
 
 ```
-src/collect.py       downloads one daily snapshot
-src/build.py         raw snapshots -> jobs.csv, skills.csv, skill_summary.csv
-analysis/            exploration notebook
-dashboard/           Tableau build notes and screenshots
-data/raw/            immutable snapshots, partitioned by date
+src/collect.py                downloads one daily snapshot
+src/build.py                  raw snapshots -> jobs.csv, skills.csv, skill_summary.csv
+analysis/                     exploration notebook
+dashboard/No_Fluff_Jobs.twb   Tableau workbook
+dashboard/Dashboard.png       the dashboard as published
+dashboard/screenshots/        single charts used in Findings
+data/raw/                     immutable snapshots, partitioned by date
 ```
